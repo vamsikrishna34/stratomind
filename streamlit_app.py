@@ -17,7 +17,7 @@ if os.path.exists(css_path):
         st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
 
 # --- App Header ---
-st.title(" StratoMind — AI Strategy Assistant")
+st.title("StratoMind — AI Strategy Assistant")
 st.markdown("### Strategy, explained.")
 
 # --- Sidebar Config ---
@@ -29,7 +29,7 @@ strategy_type = st.sidebar.text_input("Strategy", placeholder="e.g., Content Str
 uploaded_file = st.sidebar.file_uploader(
     "Upload CSV Data (optional)",
     type="csv",
-    help="Provide your own dataset to run a custom analysis, or leave blank to use the sample."
+    help="Provide your own dataset to run a custom analysis, or leave blank to use the built‑in sample."
 )
 
 # --- Main Logic Trigger ---
@@ -38,10 +38,14 @@ if st.sidebar.button("Run Analysis"):
         # Step 1: Ingest data (uploaded or default)
         if uploaded_file is not None:
             docs = spark_etl.run_etl(uploaded_file)
+            st.subheader("Uploaded Data Preview")
+            st.dataframe(docs.head(5), use_container_width=True)
         else:
             sample_path = "assets/sample_data.csv"
             if os.path.exists(sample_path):
                 docs = spark_etl.run_etl(sample_path)
+                st.subheader("Sample Data Preview")
+                st.dataframe(docs.head(5), use_container_width=True)
             else:
                 st.error("No sample dataset found. Please upload a CSV to proceed.")
                 st.stop()
@@ -65,6 +69,6 @@ if st.sidebar.button("Run Analysis"):
 
 # --- Info Banner ---
 st.info(
-    " Tip: Select a domain, enter a strategy, and optionally upload your own CSV data. "
-    "If no file is uploaded, the app will use the built‑in sample dataset."
+    " Tip: Select a domain, enter a strategy, and optionally upload a CSV file to run a "
+    "custom analysis. If no file is uploaded, the app will use the built‑in sample dataset."
 )
