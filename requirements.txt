@@ -14,3 +14,13 @@ shap>=0.43.0
 # Agents / Retrieval
 langchain>=0.2.0
 langgraph>=0.0.18
+
+# File parsing
+pdfplumber>=0.11.0
+python-docx>=0.8.11
+
+# GenAI model bindings
+gpt4all>=2.8.0
+
+# NLP utilities (for ETL text features)
+textblob>=0.18.0
