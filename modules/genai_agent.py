@@ -1,2 +1,6 @@
 def generate_strategy(docs, query):
-    return f"[Stub] Generated AI strategy for '{query}' from provided docs."
+    """
+    Generates a strategy using GenAI.
+    Stub version — will be replaced by LangChain agent integration.
+    """
+    return f"Generated strategy for '{query}' using provided docs."

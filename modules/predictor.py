@@ -1,2 +1,5 @@
 def predict(features: dict):
-    return "High Growth Potential", "[Stub] Based on minimal features"
+    """
+    Stub prediction — will be replaced by XGBoost + SHAP explainability.
+    """
+    return "High Growth Potential", "Based on preliminary features only."
