@@ -1,0 +1,47 @@
+"""
+requirements.py — Dependency manifest for StratoMind.
+Used for reference or programmatic installs.
+"""
+
+# Core
+core_packages = [
+    "streamlit>=1.35.0",    # UI framework
+    "pandas>=2.2.2",        # Data handling
+]
+
+# AI/ML
+ml_packages = [
+    "scikit-learn>=1.4.2",  # ML utilities (until XGBoost integration)
+    # "xgboost>=2.0.3",     # Uncomment when using XGBoost
+    # "shap>=0.43.0",       # For explainability
+]
+
+# Retrieval / Agents
+genai_packages = [
+    # "langchain>=0.2.0",
+    # "langgraph>=0.0.18",
+]
+
+# Big Data
+spark_packages = [
+    # "pyspark>=3.5.1",     # Uncomment in Spark-enabled env
+]
+
+# Utilities
+utility_packages = [
+    "pyyaml>=6.0.2",        # Config parsing
+]
+
+# Combined export
+all_packages = (
+    core_packages
+    + ml_packages
+    + genai_packages
+    + spark_packages
+    + utility_packages
+)
+
+if __name__ == "__main__":
+    import subprocess
+    for pkg in all_packages:
+        subprocess.check_call(["pip", "install", pkg])
