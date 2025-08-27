@@ -1,11 +1,10 @@
 """
-spark_etl.py — Data ingestion and transformation with Spark (stub mode).
+spark_etl.py — Data ingestion and transformation with Spark or Pandas.
 
 Switch `USE_SPARK=True` when deploying in a Spark-enabled environment.
 """
 
 import os
-import io
 import pandas as pd
 
 # Toggle for real Spark usage
@@ -15,7 +14,7 @@ try:
     if USE_SPARK:
         from pyspark.sql import SparkSession
 except ImportError:
-    pass  # Ignore if Spark isn't installed yet
+    pass
 
 
 def run_etl(input_source):
@@ -25,7 +24,7 @@ def run_etl(input_source):
     Args:
         input_source (str | file-like | pd.DataFrame):
             - Path to the input CSV
-            - File-like object (e.g. from Streamlit uploader)
+            - File-like object (e.g., from Streamlit uploader)
             - Pandas DataFrame (skips loading step)
 
     Returns:
@@ -42,7 +41,6 @@ def run_etl(input_source):
         if isinstance(input_source, str):
             df = spark.read.csv(input_source, header=True, inferSchema=True)
         elif hasattr(input_source, "read"):  # file-like object
-            # Spark can't read file-like directly — save temp then read
             tmp_path = "_temp_upload.csv"
             with open(tmp_path, "wb") as tmp_f:
                 tmp_f.write(input_source.read())
@@ -61,7 +59,7 @@ def run_etl(input_source):
             if not os.path.exists(input_source):
                 raise FileNotFoundError(f"No file found at {input_source}")
             df = pd.read_csv(input_source)
-        elif hasattr(input_source, "read"):  # file-like
+        elif hasattr(input_source, "read"):  # file-like object
             df = pd.read_csv(input_source)
         else:
             raise ValueError("Unsupported input type for Pandas ETL.")
@@ -69,6 +67,9 @@ def run_etl(input_source):
         return _transform_pandas(df)
 
 
+# ----------------------
+# Spark Transformation
+# ----------------------
 def _transform_spark(df):
     """Example Spark transformations."""
     return (
@@ -77,9 +78,23 @@ def _transform_spark(df):
     )
 
 
+# ----------------------
+# Pandas Transformation
+# ----------------------
 def _transform_pandas(df):
-    """Example Pandas transformations (stub)."""
-    return (
-        df.dropna()
-          .rename(columns=lambda c: c.strip().lower().replace(" ", "_"))
-    )
+    """
+    Example Pandas transformations.
+    If only a `content` column exists, extract simple NLP features.
+    """
+    df = df.dropna().rename(columns=lambda c: c.strip().lower().replace(" ", "_"))
+
+    if set(df.columns) == {"content"}:
+        # Basic keyword extraction + sentiment stub
+        from textblob import TextBlob
+
+        df["char_count"] = df["content"].apply(len)
+        df["word_count"] = df["content"].apply(lambda x: len(x.split()))
+        df["keywords"] = df["content"].apply(lambda x: ", ".join(sorted(set(x.split()[:5]))))
+        df["sentiment_polarity"] = df["content"].apply(lambda x: round(TextBlob(x).sentiment.polarity, 3))
+
+    return df

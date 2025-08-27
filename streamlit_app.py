@@ -1,6 +1,9 @@
 import os
 import pandas as pd
 import streamlit as st
+import pdfplumber
+from docx import Document
+
 import modules.feature_engineer as feature_engineer
 import modules.predictor as predictor
 import modules.retriever as retriever
@@ -16,24 +19,54 @@ if os.path.exists(css_path):
     with open(css_path) as f:
         st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
 
+
+# --- Helpers for parsing all file types into DataFrame ---
+def parse_uploaded_file(file):
+    name = file.name.lower()
+
+    if name.endswith(".csv"):
+        return pd.read_csv(file)
+
+    elif name.endswith(".pdf"):
+        with pdfplumber.open(file) as pdf:
+            text = "\n".join([p.extract_text() or "" for p in pdf.pages])
+        lines = [line.strip() for line in text.split("\n") if line.strip()]
+        return pd.DataFrame({"content": lines})
+
+    elif name.endswith(".docx"):
+        doc = Document(file)
+        text = "\n".join([p.text for p in doc.paragraphs if p.text.strip()])
+        lines = [line.strip() for line in text.split("\n") if line.strip()]
+        return pd.DataFrame({"content": lines})
+
+    else:
+        return None
+
+
 # --- App Header ---
 st.markdown("<h1 class='section-header'> StratoMind</h1>", unsafe_allow_html=True)
 st.markdown("#### Your AI‑powered strategy co‑pilot — from raw data to explainable playbooks.")
 
 # --- Sidebar: Control Panel ---
-st.sidebar.markdown("## Configuration")
+st.sidebar.markdown("##  Configuration")
 domain = st.sidebar.selectbox("🗂 Select Domain", ["EdTech", "FinTech", "SaaS"])
-strategy_type = st.sidebar.text_input("🎯 Strategy Focus", placeholder="e.g., Customer Strategy: B2B")
-uploaded_file = st.sidebar.file_uploader("📂 Upload CSV (optional)", type="csv")
-run_button = st.sidebar.button("Run Analysis")
+strategy_type = st.sidebar.text_input(" Strategy Focus", placeholder="e.g., Customer Strategy: B2B")
+uploaded_file = st.sidebar.file_uploader(
+    "📂 Upload CSV, PDF, or Word (optional)",
+    type=["csv", "pdf", "docx"]
+)
+run_button = st.sidebar.button(" Run Analysis")
 
 # --- Main Panel ---
 if run_button:
-    with st.spinner("Analyzing your strategy..."):
-        # Step 1: Ingest data
+    with st.spinner(" Analyzing your strategy..."):
         if uploaded_file:
-            docs = spark_etl.run_etl(uploaded_file)
-            st.markdown("<h4 class='section-header'>📄 Uploaded Data Preview</h4>", unsafe_allow_html=True)
+            df = parse_uploaded_file(uploaded_file)
+            if df is None or df.empty:
+                st.error("Unsupported or empty file. Please upload a valid CSV, PDF, or DOCX.")
+                st.stop()
+            docs = spark_etl.run_etl(df)
+            st.markdown("<h4 class='section-header'>📄 Uploaded File Preview</h4>", unsafe_allow_html=True)
             st.dataframe(docs.head(5), use_container_width=True)
         else:
             sample_path = "assets/sample_data.csv"
@@ -42,7 +75,7 @@ if run_button:
                 st.markdown("<h4 class='section-header'>📄 Sample Data Preview</h4>", unsafe_allow_html=True)
                 st.dataframe(docs.head(5), use_container_width=True)
             else:
-                st.error("No sample dataset found. Please upload a CSV to proceed.")
+                st.error("No sample dataset found. Please upload a file.")
                 st.stop()
 
         # Step 2: Feature engineering
@@ -56,12 +89,12 @@ if run_button:
 
     # --- Output Cards ---
     st.markdown("<div class='card'>", unsafe_allow_html=True)
-    st.markdown("<h4 class='section-header'> Suggested Strategy</h4>", unsafe_allow_html=True)
+    st.markdown("<h4 class='section-header'>💡 Suggested Strategy</h4>", unsafe_allow_html=True)
     st.markdown(strategy_output)
     st.markdown("</div>", unsafe_allow_html=True)
 
     st.markdown("<div class='card'>", unsafe_allow_html=True)
-    st.markdown("<h4 class='section-header'>Prediction Insights</h4>", unsafe_allow_html=True)
+    st.markdown("<h4 class='section-header'>📊 Prediction Insights</h4>", unsafe_allow_html=True)
     st.markdown(f"**Prediction:** {pred}")
     st.write(explanation)
     st.markdown("</div>", unsafe_allow_html=True)
@@ -72,11 +105,11 @@ else:
 
     with hero_col1:
         st.markdown("<div class='card'>", unsafe_allow_html=True)
-        st.markdown("<h4 class='section-header'> How to use StratoMind</h4>", unsafe_allow_html=True)
+        st.markdown("<h4 class='section-header'>🧭 How to use StratoMind</h4>", unsafe_allow_html=True)
         st.markdown(
-            "1️. Pick a **domain** and enter your **strategy focus** in the sidebar.\n"
-            "2️. *(Optional)* Upload a CSV file for a custom analysis.\n"
-            "3️. Skip the upload to use the **sample dataset**.\n\n"
+            "1️⃣ Pick a **domain** and enter your **strategy focus** in the sidebar.\n"
+            "2️⃣ *(Optional)* Upload a CSV, PDF, or Word document for a custom analysis.\n"
+            "3️⃣ Skip the upload to use the **sample dataset**.\n\n"
             "▶️ When ready, hit **Run Analysis** to get your AI‑driven playbook."
         )
         st.markdown("</div>", unsafe_allow_html=True)
@@ -85,8 +118,8 @@ else:
         st.markdown("<div class='card'>", unsafe_allow_html=True)
         st.markdown("### ✨ What you'll get")
         st.markdown(
-            "-  A tailored, data‑driven strategy\n"
-            "-  Predictive insights with context\n"
-            "-  Transparent reasoning for each suggestion"
+            "- A tailored, data‑driven strategy\n"
+            "- Predictive insights with context\n"
+            "- Transparent reasoning for each suggestion"
         )
         st.markdown("</div>", unsafe_allow_html=True)
