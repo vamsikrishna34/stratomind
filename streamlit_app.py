@@ -5,46 +5,41 @@ import modules.feature_engineer as feature_engineer
 import modules.predictor as predictor
 import modules.retriever as retriever
 import modules.strategy_graph as strategy_graph
-import modules.spark_etl as spark_etl   # fully integrated
+import modules.spark_etl as spark_etl
 
 # --- Page Config ---
 st.set_page_config(page_title="StratoMind — AI Strategy Assistant", layout="wide")
 
-# --- Inject Custom CSS if present ---
+# --- Inject Custom CSS ---
 css_path = "assets/custom_styles.css"
 if os.path.exists(css_path):
     with open(css_path) as f:
         st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
 
 # --- App Header ---
-st.title(" StratoMind — AI Strategy Assistant")
-st.markdown("### Strategy, explained — powered by data and AI.")
+st.markdown("<h1 class='section-header'>🚀 StratoMind</h1>", unsafe_allow_html=True)
+st.markdown("#### Your AI‑powered strategy co‑pilot — from raw data to explainable playbooks.")
 
-# --- Sidebar Config ---
-st.sidebar.header(" Configuration")
-domain = st.sidebar.selectbox("Domain", ["EdTech", "FinTech", "SaaS"])
-strategy_type = st.sidebar.text_input("Strategy Focus", placeholder="e.g., Content Strategy for B2B")
+# --- Sidebar: Control Panel ---
+st.sidebar.markdown("## Configuration")
+domain = st.sidebar.selectbox("🗂 Select Domain", ["EdTech", "FinTech", "SaaS"])
+strategy_type = st.sidebar.text_input("🎯 Strategy Focus", placeholder="e.g., Customer Strategy: B2B")
+uploaded_file = st.sidebar.file_uploader("📂 Upload CSV (optional)", type="csv")
+run_button = st.sidebar.button("🚀 Run Analysis")
 
-# --- File Upload ---
-uploaded_file = st.sidebar.file_uploader(
-    "📂 Upload CSV Data (optional)",
-    type="csv",
-    help="Provide your own dataset for a tailored analysis, or leave blank to use the built‑in sample."
-)
-
-# --- Main Logic Trigger ---
-if st.sidebar.button(" Run Analysis"):
-    with st.spinner(" Processing your strategy..."):
-        # Step 1: Ingest data (uploaded or default)
-        if uploaded_file is not None:
+# --- Main Panel ---
+if run_button:
+    with st.spinner("Analyzing your strategy..."):
+        # Step 1: Ingest data
+        if uploaded_file:
             docs = spark_etl.run_etl(uploaded_file)
-            st.subheader(" Uploaded Data Preview")
+            st.markdown("<h4 class='section-header'>📄 Uploaded Data Preview</h4>", unsafe_allow_html=True)
             st.dataframe(docs.head(5), use_container_width=True)
         else:
             sample_path = "assets/sample_data.csv"
             if os.path.exists(sample_path):
                 docs = spark_etl.run_etl(sample_path)
-                st.subheader(" Sample Data Preview")
+                st.markdown("<h4 class='section-header'>📄 Sample Data Preview</h4>", unsafe_allow_html=True)
                 st.dataframe(docs.head(5), use_container_width=True)
             else:
                 st.error("No sample dataset found. Please upload a CSV to proceed.")
@@ -59,19 +54,39 @@ if st.sidebar.button(" Run Analysis"):
         # Step 4: Orchestrate final strategy
         strategy_output = strategy_graph.run_strategy_pipeline(domain, strategy_type, docs, pred)
 
-    # --- Output Sections ---
-    st.subheader(" Suggested Strategy")
+    # --- Output Cards ---
+    st.markdown("<div class='card'>", unsafe_allow_html=True)
+    st.markdown("<h4 class='section-header'>💡 Suggested Strategy</h4>", unsafe_allow_html=True)
     st.markdown(strategy_output)
+    st.markdown("</div>", unsafe_allow_html=True)
 
-    st.subheader(" Prediction Insights")
+    st.markdown("<div class='card'>", unsafe_allow_html=True)
+    st.markdown("<h4 class='section-header'>📊 Prediction Insights</h4>", unsafe_allow_html=True)
     st.markdown(f"**Prediction:** {pred}")
     st.write(explanation)
+    st.markdown("</div>", unsafe_allow_html=True)
 
-# --- Info Banner ---
-st.info(
-    "**How to use StratoMind**\n"
-    "1. Pick a **domain** and enter your **strategy focus** in the sidebar.\n"
-    "2. *(Optional)* Upload a CSV file for custom analysis.\n"
-    "3. If you skip the upload, StratoMind will use its **sample dataset** so you can explore instantly.\n\n"
-    "When ready, hit **Run Analysis** to generate your AI‑driven playbook."
-)
+else:
+    # --- Hero Section Before Analysis ---
+    hero_col1, hero_col2 = st.columns([1.2, 0.8])
+
+    with hero_col1:
+        st.markdown("<div class='card'>", unsafe_allow_html=True)
+        st.markdown("<h4 class='section-header'>🧭 How to use StratoMind</h4>", unsafe_allow_html=True)
+        st.markdown(
+            "1️. Pick a **domain** and enter your **strategy focus** in the sidebar.\n"
+            "2️. *(Optional)* Upload a CSV file for a custom analysis.\n"
+            "3️. Skip the upload to use the **sample dataset**.\n\n"
+            "▶️ When ready, hit **Run Analysis** to get your AI‑driven playbook."
+        )
+        st.markdown("</div>", unsafe_allow_html=True)
+
+    with hero_col2:
+        st.markdown("<div class='card'>", unsafe_allow_html=True)
+        st.markdown("### ✨ What you'll get")
+        st.markdown(
+            "-  A tailored, data‑driven strategy\n"
+            "-  Predictive insights with context\n"
+            "-  Transparent reasoning for each suggestion"
+        )
+        st.markdown("</div>", unsafe_allow_html=True)
