@@ -56,12 +56,12 @@ if run_button:
 
     # --- Output Cards ---
     st.markdown("<div class='card'>", unsafe_allow_html=True)
-    st.markdown("<h4 class='section-header'>💡 Suggested Strategy</h4>", unsafe_allow_html=True)
+    st.markdown("<h4 class='section-header'> Suggested Strategy</h4>", unsafe_allow_html=True)
     st.markdown(strategy_output)
     st.markdown("</div>", unsafe_allow_html=True)
 
     st.markdown("<div class='card'>", unsafe_allow_html=True)
-    st.markdown("<h4 class='section-header'>📊 Prediction Insights</h4>", unsafe_allow_html=True)
+    st.markdown("<h4 class='section-header'>Prediction Insights</h4>", unsafe_allow_html=True)
     st.markdown(f"**Prediction:** {pred}")
     st.write(explanation)
     st.markdown("</div>", unsafe_allow_html=True)
