@@ -17,7 +17,7 @@ if os.path.exists(css_path):
         st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
 
 # --- App Header ---
-st.markdown("<h1 class='section-header'>🚀 StratoMind</h1>", unsafe_allow_html=True)
+st.markdown("<h1 class='section-header'> StratoMind</h1>", unsafe_allow_html=True)
 st.markdown("#### Your AI‑powered strategy co‑pilot — from raw data to explainable playbooks.")
 
 # --- Sidebar: Control Panel ---
@@ -25,7 +25,7 @@ st.sidebar.markdown("## Configuration")
 domain = st.sidebar.selectbox("🗂 Select Domain", ["EdTech", "FinTech", "SaaS"])
 strategy_type = st.sidebar.text_input("🎯 Strategy Focus", placeholder="e.g., Customer Strategy: B2B")
 uploaded_file = st.sidebar.file_uploader("📂 Upload CSV (optional)", type="csv")
-run_button = st.sidebar.button("🚀 Run Analysis")
+run_button = st.sidebar.button("Run Analysis")
 
 # --- Main Panel ---
 if run_button:
@@ -72,7 +72,7 @@ else:
 
     with hero_col1:
         st.markdown("<div class='card'>", unsafe_allow_html=True)
-        st.markdown("<h4 class='section-header'>🧭 How to use StratoMind</h4>", unsafe_allow_html=True)
+        st.markdown("<h4 class='section-header'> How to use StratoMind</h4>", unsafe_allow_html=True)
         st.markdown(
             "1️. Pick a **domain** and enter your **strategy focus** in the sidebar.\n"
             "2️. *(Optional)* Upload a CSV file for a custom analysis.\n"
