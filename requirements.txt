@@ -1,4 +1,16 @@
-streamlit
-pandas
-scikit-learn
-pyyaml
+# Full dependency set for local dev, Spark, and GenAI integrations
+streamlit>=1.35.0
+pandas>=2.2.2
+scikit-learn>=1.4.2
+pyyaml>=6.0.2
+
+# Big Data
+pyspark>=3.5.1
+
+# ML/Explainability
+xgboost>=2.0.3
+shap>=0.43.0
+
+# Agents / Retrieval
+langchain>=0.2.0
+langgraph>=0.0.18
