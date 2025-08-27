@@ -89,12 +89,12 @@ if run_button:
 
     # --- Output Cards ---
     st.markdown("<div class='card'>", unsafe_allow_html=True)
-    st.markdown("<h4 class='section-header'>💡 Suggested Strategy</h4>", unsafe_allow_html=True)
+    st.markdown("<h4 class='section-header'> Suggested Strategy</h4>", unsafe_allow_html=True)
     st.markdown(strategy_output)
     st.markdown("</div>", unsafe_allow_html=True)
 
     st.markdown("<div class='card'>", unsafe_allow_html=True)
-    st.markdown("<h4 class='section-header'>📊 Prediction Insights</h4>", unsafe_allow_html=True)
+    st.markdown("<h4 class='section-header'> Prediction Insights</h4>", unsafe_allow_html=True)
     st.markdown(f"**Prediction:** {pred}")
     st.write(explanation)
     st.markdown("</div>", unsafe_allow_html=True)
@@ -105,7 +105,7 @@ else:
 
     with hero_col1:
         st.markdown("<div class='card'>", unsafe_allow_html=True)
-        st.markdown("<h4 class='section-header'>🧭 How to use StratoMind</h4>", unsafe_allow_html=True)
+        st.markdown("<h4 class='section-header'> How to use StratoMind</h4>", unsafe_allow_html=True)
         st.markdown(
             "1️⃣ Pick a **domain** and enter your **strategy focus** in the sidebar.\n"
             "2️⃣ *(Optional)* Upload a CSV, PDF, or Word document for a custom analysis.\n"
