@@ -83,18 +83,37 @@ def _transform_spark(df):
 # ----------------------
 def _transform_pandas(df):
     """
-    Example Pandas transformations.
-    If only a `content` column exists, extract simple NLP features.
+    Pandas transformations:
+    - Clean column names
+    - If only a `content` column exists (from PDF/DOCX), derive title/description
+    - Extract simple NLP features
     """
-    df = df.dropna().rename(columns=lambda c: c.strip().lower().replace(" ", "_"))
+    # Clean column names
+    df = df.rename(columns=lambda c: c.strip().lower().replace(" ", "_"))
 
+    # Drop full-empty rows (but keep 0s)
+    df = df.dropna(how="all")
+
+    # Handle pure text extraction case
     if set(df.columns) == {"content"}:
-        # Basic keyword extraction + sentiment stub
         from textblob import TextBlob
 
+        # Ensure strings
+        df["content"] = df["content"].astype(str)
+
+        # Derive a pseudo title and description
+        df["title"] = df["content"].apply(lambda x: x.split("\n")[0][:80] if x else "")
+        df["description"] = df["content"].apply(lambda x: " ".join(x.split()[1:50]) if len(x.split()) > 1 else "")
+
+        # Basic keyword extraction & sentiment
         df["char_count"] = df["content"].apply(len)
         df["word_count"] = df["content"].apply(lambda x: len(x.split()))
         df["keywords"] = df["content"].apply(lambda x: ", ".join(sorted(set(x.split()[:5]))))
         df["sentiment_polarity"] = df["content"].apply(lambda x: round(TextBlob(x).sentiment.polarity, 3))
+
+    else:
+        # Convert all object columns to strings to avoid .lower() errors later
+        for col in df.select_dtypes(include=["object"]).columns:
+            df[col] = df[col].astype(str)
 
     return df
