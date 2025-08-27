@@ -1,5 +1,9 @@
 import streamlit as st
-from modules import feature_engineer, predictor, retriever, genai_agent, strategy_graph
+import modules.feature_engineer as feature_engineer
+import modules.predictor as predictor
+import modules.retriever as retriever
+import modules.genai_agent as genai_agent
+import modules.strategy_graph as strategy_graph
 
 # --- App Config ---
 st.set_page_config(page_title="StratoMind AI Assistant", layout="wide")
