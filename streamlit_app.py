@@ -6,7 +6,7 @@ from docx import Document
 
 import modules.feature_engineer as feature_engineer
 import modules.predictor as predictor
-from modules.fallback import fallback_predict
+from modules.fallback import fallback_predict, safe_call
 import modules.retriever as retriever
 import modules.strategy_graph as strategy_graph
 import modules.spark_etl as spark_etl
@@ -47,6 +47,7 @@ st.sidebar.markdown("##  Configuration")
 domain = st.sidebar.selectbox("🗂 Select Domain", ["EdTech", "FinTech", "SaaS"])
 strategy_type = st.sidebar.text_input(" Strategy Focus", placeholder="e.g., Customer Strategy: B2B")
 uploaded_file = st.sidebar.file_uploader("📂 Upload CSV, PDF, or Word (optional)", type=["csv", "pdf", "docx"])
+use_fallback = st.sidebar.checkbox("🔄 Force Fallback Mode", value=False)
 run_button = st.sidebar.button(" Run Analysis")
 
 # --- Main Panel ---
@@ -74,21 +75,25 @@ if run_button:
         # Step 2: Feature engineering
         features = feature_engineer.transform(strategy_type, domain, docs)
 
-        # Step 3: Prediction with fallback
-        try:
-            if predictor.model is not None:
-                pred, explanation = predictor.predict(features)
-            else:
-                raise RuntimeError("Model not loaded")
-        except Exception as e:
-            st.warning(f"⚠️ Model error: {e}. Using fallback logic.")
+        # Step 3: Prediction with fallback toggle
+        if use_fallback:
+            st.info("🔄 Fallback mode enabled manually.")
             pred, explanation = fallback_predict(features)
+        else:
+            pred, explanation = safe_call(
+                predictor.predict,
+                fallback_predict(features),
+                features,
+                label="Prediction"
+            )
 
-        # Step 4: Strategy generation
-        try:
-            strategy_output = strategy_graph.run_strategy_pipeline(domain, strategy_type, docs, pred)
-        except Exception as e:
-            strategy_output = f"⚠️ Strategy generation failed: {e}"
+        # Step 4: Strategy generation with fallback
+        strategy_output = safe_call(
+            strategy_graph.run_strategy_pipeline,
+            "⚠️ Strategy generation failed.",
+            domain, strategy_type, docs, pred,
+            label="Strategy Pipeline"
+        )
 
     # --- Output Cards ---
     st.markdown("<div class='card'>", unsafe_allow_html=True)
