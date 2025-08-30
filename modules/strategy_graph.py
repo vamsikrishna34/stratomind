@@ -14,14 +14,32 @@ def run_strategy_pipeline(domain: str, query: str, strategy_docs: List[Dict], pr
     Returns:
         str: Final strategy narrative.
     """
-    # Step 1: Generate base strategy from docs
-    base_strategy = genai_agent.generate_strategy(strategy_docs, query)
+    # --- Defensive fallback for empty or malformed input ---
+    if not isinstance(strategy_docs, list) or len(strategy_docs) == 0:
+        return (
+            f"### Strategy Summary for '{query}' in {domain}\n\n"
+            f"**Predicted Outcome:** {prediction}\n\n"
+            f"⚠️ No strategy documents available. Unable to generate a full strategy.\n"
+            f"Consider uploading a richer dataset or refining your query."
+        )
 
-    # Step 2: Add prediction context
-    final_output = (
-        f"### Strategy Summary for '{query}' in {domain}\n\n"
-        f"**Predicted Outcome:** {prediction}\n\n"
-        f"{base_strategy}"
-    )
+    try:
+        # Step 1: Generate base strategy from docs
+        base_strategy = genai_agent.generate_strategy(strategy_docs, query)
 
-    return final_output
+        # Step 2: Add prediction context
+        final_output = (
+            f"### Strategy Summary for '{query}' in {domain}\n\n"
+            f"**Predicted Outcome:** {prediction}\n\n"
+            f"{base_strategy}"
+        )
+        return final_output
+
+    except Exception as e:
+        # Graceful fallback if GenAI agent fails
+        return (
+            f"### Strategy Summary for '{query}' in {domain}\n\n"
+            f"**Predicted Outcome:** {prediction}\n\n"
+            f"⚠️ Strategy generation failed due to an internal error.\n"
+            f"Error: {str(e)}"
+        )
