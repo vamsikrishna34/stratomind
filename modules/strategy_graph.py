@@ -19,7 +19,7 @@ def run_strategy_pipeline(domain: str, query: str, strategy_docs: List[Dict], pr
         return (
             f"### Strategy Summary for '{query}' in {domain}\n\n"
             f"**Predicted Outcome:** {prediction}\n\n"
-            f"⚠️ No strategy documents available. Unable to generate a full strategy.\n"
+            f"No strategy documents available. Unable to generate a full strategy.\n"
             f"Consider uploading a richer dataset or refining your query."
         )
 
