@@ -1,14 +1,15 @@
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Union
 import numpy as np
+import pandas as pd
 
-def transform(strategy_query: Any, domain: str, strategy_docs: List[Dict]) -> Dict:
+def transform(strategy_query: Any, domain: str, strategy_docs: Union[List[Dict], pd.DataFrame]) -> Dict:
     """
     Transforms strategy input into a feature dictionary.
 
     Args:
         strategy_query (str | Any): User-entered strategy prompt. Will be coerced to str.
         domain (str): Selected domain (e.g., 'EdTech').
-        strategy_docs (List[Dict]): Retrieved strategy data.
+        strategy_docs (List[Dict] | pd.DataFrame): Retrieved strategy data.
 
     Returns:
         Dict: Feature dictionary for prediction.
@@ -17,7 +18,13 @@ def transform(strategy_query: Any, domain: str, strategy_docs: List[Dict]) -> Di
     query_str = str(strategy_query or "").strip()
     query_lower = query_str.lower()
 
-    safe_docs = strategy_docs or []
+    # Defensive fallback for empty or invalid input
+    if isinstance(strategy_docs, pd.DataFrame):
+        safe_docs = strategy_docs.to_dict(orient="records") if not strategy_docs.empty else []
+    elif isinstance(strategy_docs, list):
+        safe_docs = strategy_docs if strategy_docs else []
+    else:
+        safe_docs = []
 
     # Basic keyword features
     query_len = len(query_str.split())
