@@ -34,15 +34,15 @@ def transform(strategy_query: Any, domain: str, strategy_docs: List[Dict]) -> Di
         for s in safe_docs
     ]) if safe_docs else 0
 
-    # Domain encoding (stub — replace with one-hot or embedding later)
-    domain_map = {"EdTech": 0, "FinTech": 1, "SaaS": 2}
-    domain_encoded = domain_map.get(domain, -1)
+    # --- One-hot domain encoding ---
+    domain_keys = ["EdTech", "FinTech", "SaaS"]
+    domain_onehot = {f"domain_{key}": int(domain == key) for key in domain_keys}
 
     return {
         "query_length": query_len,
         "keyword_hits": keyword_hits,
         "avg_steps": avg_steps,
-        "domain_encoded": domain_encoded,
+        **domain_onehot,
         "raw_query": query_str,
         "raw_domain": domain
     }
