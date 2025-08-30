@@ -44,15 +44,15 @@ st.markdown("#### Your AI‑powered strategy co‑pilot — from raw data to exp
 
 # --- Sidebar: Control Panel ---
 st.sidebar.markdown("##  Configuration")
-domain = st.sidebar.selectbox("🗂 Select Domain", ["EdTech", "FinTech", "SaaS"])
+domain = st.sidebar.selectbox(" Select Domain", ["EdTech", "FinTech", "SaaS"])
 strategy_type = st.sidebar.text_input(" Strategy Focus", placeholder="e.g., Customer Strategy: B2B")
-uploaded_file = st.sidebar.file_uploader("📂 Upload CSV, PDF, or Word (optional)", type=["csv", "pdf", "docx"])
-use_fallback = st.sidebar.checkbox("🔄 Force Fallback Mode", value=False)
+uploaded_file = st.sidebar.file_uploader("Upload CSV, PDF, or Word (optional)", type=["csv", "pdf", "docx"])
+use_fallback = st.sidebar.checkbox("Force Fallback Mode", value=False)
 run_button = st.sidebar.button(" Run Analysis")
 
 # --- Main Panel ---
 if run_button:
-    with st.spinner("🔍 Analyzing your strategy..."):
+    with st.spinner(" Analyzing your strategy..."):
         # Step 1: File ingestion
         if uploaded_file:
             df = parse_uploaded_file(uploaded_file)
@@ -60,13 +60,13 @@ if run_button:
                 st.error("Unsupported or empty file. Please upload a valid CSV, PDF, or DOCX.")
                 st.stop()
             docs = spark_etl.run_etl(df)
-            st.markdown("<h4 class='section-header'>📄 Uploaded File Preview</h4>", unsafe_allow_html=True)
+            st.markdown("<h4 class='section-header'> Uploaded File Preview</h4>", unsafe_allow_html=True)
             st.dataframe(docs.head(5), use_container_width=True)
         else:
             sample_path = "assets/sample_data.csv"
             if os.path.exists(sample_path):
                 docs = spark_etl.run_etl(sample_path)
-                st.markdown("<h4 class='section-header'>📄 Sample Data Preview</h4>", unsafe_allow_html=True)
+                st.markdown("<h4 class='section-header'> Sample Data Preview</h4>", unsafe_allow_html=True)
                 st.dataframe(docs.head(5), use_container_width=True)
             else:
                 st.error("No sample dataset found. Please upload a file.")
@@ -77,7 +77,7 @@ if run_button:
 
         # Step 3: Prediction with fallback toggle
         if use_fallback:
-            st.info("🔄 Fallback mode enabled manually.")
+            st.info(" Fallback mode enabled manually.")
             pred, explanation = fallback_predict(features)
         else:
             pred, explanation = safe_call(
@@ -90,7 +90,7 @@ if run_button:
         # Step 4: Strategy generation with fallback
         strategy_output = safe_call(
             strategy_graph.run_strategy_pipeline,
-            "⚠️ Strategy generation failed.",
+            " Strategy generation failed.",
             domain, strategy_type, docs, pred,
             label="Strategy Pipeline"
         )

@@ -37,11 +37,11 @@ def predict(features: Dict) -> Tuple[str, str]:
 
     # Threshold-based label
     if score > 0.7:
-        prediction = "📈 High Growth Potential"
+        prediction = " High Growth Potential"
     elif score > 0.4:
-        prediction = "📊 Moderate Strategic Fit"
+        prediction = " Moderate Strategic Fit"
     else:
-        prediction = "⚠️ Low Strategic Alignment"
+        prediction = " Low Strategic Alignment"
 
     # SHAP explanation
     try:
