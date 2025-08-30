@@ -1,8 +1,19 @@
 from typing import Dict, Tuple
+import xgboost as xgb
+import shap
+import numpy as np
+
+# Load pre-trained model (ensure this path is correct in your environment)
+MODEL_PATH = "models/strategy_predictor.json"
+model = xgb.Booster()
+model.load_model(MODEL_PATH)
+
+# Define expected feature order — must match training schema
+FEATURE_KEYS = ["query_length", "keyword_hits", "avg_steps"]
 
 def predict(features: Dict) -> Tuple[str, str]:
     """
-    Predicts strategy outcome based on input features.
+    Predicts strategy outcome using XGBoost and explains it with SHAP.
 
     Args:
         features (Dict): Feature dictionary from feature_engineer.py
@@ -10,25 +21,28 @@ def predict(features: Dict) -> Tuple[str, str]:
     Returns:
         Tuple[str, str]: (Prediction label, Explanation string)
     """
-    # Stub logic — replace with XGBoost model later
-    score = (
-        features.get("query_length", 0)
-        + features.get("keyword_hits", 0) * 2
-        + features.get("avg_steps", 0)
-    )
+    # Defensive defaults
+    input_vector = [features.get(key, 0) for key in FEATURE_KEYS]
+    dmatrix = xgb.DMatrix(np.array([input_vector]), feature_names=FEATURE_KEYS)
 
-    # Simple thresholding
-    if score > 10:
-        prediction = "High Growth Potential"
-    elif score > 5:
-        prediction = "Moderate Potential"
+    # Predict score
+    score = model.predict(dmatrix)[0]
+
+    # Threshold-based label (tweakable)
+    if score > 0.7:
+        prediction = " High Growth Potential"
+    elif score > 0.4:
+        prediction = " Moderate Strategic Fit"
     else:
-        prediction = "Low Strategic Fit"
+        prediction = " Low Strategic Alignment"
 
-    # Stub explanation — replace with SHAP or agentic reasoning
-    explanation = (
-        f"Prediction based on query length ({features.get('query_length')}), "
-        f"keyword matches ({features.get('keyword_hits')}), and average step count ({features.get('avg_steps')})."
-    )
+    # SHAP explanation
+    explainer = shap.TreeExplainer(model)
+    shap_values = explainer.shap_values(np.array([input_vector]))[0]
 
+    explanation_lines = [f"Prediction: **{prediction}** (Score: {score:.2f})", "", "Feature Contributions:"]
+    for key, value, shap_val in zip(FEATURE_KEYS, input_vector, shap_values):
+        explanation_lines.append(f" • {key}: {value} → SHAP impact: {shap_val:+.2f}")
+
+    explanation = "\n".join(explanation_lines)
     return prediction, explanation
