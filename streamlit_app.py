@@ -50,6 +50,9 @@ uploaded_file = st.sidebar.file_uploader("Upload CSV, PDF, or Word (optional)", 
 use_fallback = st.sidebar.checkbox("Force Fallback Mode", value=False)
 run_button = st.sidebar.button(" Run Analysis")
 
+st.sidebar.markdown("---")
+st.sidebar.markdown("[View on GitHub](https://github.com/vamsikrishna34/stratomind)")
+
 # --- Main Panel ---
 if run_button:
     with st.spinner(" Analyzing your strategy..."):
