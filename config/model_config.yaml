@@ -1,0 +1,13 @@
+model_path: models/strategy_predictor.json
+
+feature_keys:
+  - query_length
+  - keyword_hits
+  - avg_steps
+  - domain_EdTech
+  - domain_FinTech
+  - domain_SaaS
+
+shap:
+  enabled: true
+  max_features: 5

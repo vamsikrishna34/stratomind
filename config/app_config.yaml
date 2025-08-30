@@ -1,0 +1,8 @@
+ui:
+  default_domain: FinTech
+  default_strategy_focus: Customer Strategy: B2B
+  show_fallback_toggle: true
+  show_sample_preview: true
+  show_shap_explanation: true
+  custom_css_path: assets/custom_styles.css
+  sample_data_path: assets/sample_data.csv

@@ -1,0 +1,4 @@
+etl:
+  clean_nulls: true
+  normalize_text: true
+  max_lines: 500
