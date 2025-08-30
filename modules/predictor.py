@@ -3,12 +3,12 @@ import xgboost as xgb
 import shap
 import numpy as np
 
-# Load pre-trained model (ensure this path is correct in your environment)
+# Load model correctly
 MODEL_PATH = "models/strategy_predictor.json"
 model = xgb.Booster()
 model.load_model(MODEL_PATH)
 
-# Define expected feature order — must match training schema
+# Define expected feature order
 FEATURE_KEYS = ["query_length", "keyword_hits", "avg_steps"]
 
 def predict(features: Dict) -> Tuple[str, str]:
@@ -28,11 +28,11 @@ def predict(features: Dict) -> Tuple[str, str]:
     # Predict score
     score = model.predict(dmatrix)[0]
 
-    # Threshold-based label (tweakable)
+    # Threshold-based label
     if score > 0.7:
         prediction = " High Growth Potential"
     elif score > 0.4:
-        prediction = " Moderate Strategic Fit"
+        prediction = "Moderate Strategic Fit"
     else:
         prediction = " Low Strategic Alignment"
 
