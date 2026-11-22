@@ -1,5 +1,9 @@
 from typing import List, Dict
-from langchain.tools import Tool
+
+try:
+    from langchain_core.tools import Tool
+except ImportError:
+    from langchain.tools import Tool
 
 def format_strategy(doc: Dict) -> str:
     """
