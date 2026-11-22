@@ -1,5 +1,9 @@
 from typing import List, Dict
-from langchain.tools import Tool
+
+try:
+    from langchain.tools import Tool
+except Exception:
+    Tool = None
 
 def format_strategy(doc: Dict) -> str:
     """
@@ -39,10 +43,12 @@ def generate_strategy(strategy_docs: List[Dict], query: str) -> str:
     body = "\n\n".join([format_strategy(doc) for doc in strategy_docs])
     return header + body
 
-# LangChain Tool wrapper
-generate_strategy_tool = Tool.from_function(
-    name="generate_strategy",
-    description="Generates a strategic narrative from structured strategy documents and a user query.",
-    func=lambda inputs: generate_strategy(inputs.get("strategy_docs", []), inputs.get("query", "")),
-    args_schema=None  # Optional: define Pydantic schema for stricter input validation
-)
+# LangChain Tool wrapper (only created when langchain is available)
+generate_strategy_tool = None
+if Tool is not None:
+    generate_strategy_tool = Tool.from_function(
+        name="generate_strategy",
+        description="Generates a strategic narrative from structured strategy documents and a user query.",
+        func=lambda inputs: generate_strategy(inputs.get("strategy_docs", []), inputs.get("query", "")),
+        args_schema=None  # Optional: define Pydantic schema for stricter input validation
+    )
